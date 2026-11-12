@@ -2,7 +2,7 @@
   "specVersion": "1.1",
   "type": "stdin",
   "name": "dp-sk-judikatura-grab",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Downloads Supreme Court of the Slovak Republic decisions from the nsud.sk OpenData API by decision-date window, plus PDF attachments of decisions without API text. Writes files.",
   "author": "open-lex-it",
   "authentication": false,

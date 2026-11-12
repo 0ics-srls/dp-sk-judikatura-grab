@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import unicodedata
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
@@ -115,3 +116,9 @@ class NsudClient:
             msg = f"attachment {subor} is not a PDF"
             raise GrabError(CONFIG_ERROR, msg)
         return body
+
+
+def page_slug(cislo: str) -> str:
+    """Slug of the decision page ``/rozhodnutia/<slug>/`` (live probe, P81-08): the case number folded to ASCII, lower-case, without punctuation."""
+    folded = unicodedata.normalize("NFKD", cislo)
+    return re.sub(r"[^0-9a-z]", "", "".join(ch for ch in folded if not unicodedata.combining(ch)).lower())
