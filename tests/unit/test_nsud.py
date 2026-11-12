@@ -13,7 +13,7 @@ import pytest
 from conftest import PDF_BYTES, FakeTime, Server, fixture_bytes
 from dp_sk_judikatura_grab import http
 from dp_sk_judikatura_grab.errors import CONFIG_ERROR, TRANSIENT_ERROR, GrabError
-from dp_sk_judikatura_grab.nsud import MIN_PAUSE, NsudClient, Pacer
+from dp_sk_judikatura_grab.nsud import MIN_PAUSE, NsudClient, Pacer, page_slug
 
 API = "https://www.nsud.sk/ws/opendata.php"
 
@@ -251,3 +251,9 @@ def test_verify_tls_false_gives_a_non_verifying_context() -> None:
     context = http.ssl_context(verify_tls=False)
 
     assert context.verify_mode == ssl.CERT_NONE
+
+
+@pytest.mark.unit
+@pytest.mark.parametrize(("cislo", "slug"), [("5Sžo/221/2010", "5szo2212010"), ("1Cdo/91/2025", "1cdo912025"), ("7Sžr/65/2016", "7szr652016"), ("3Tdo/12/2019", "3tdo122019"), ("  ", ""), ("../x", "x")])
+def test_the_page_slug_is_the_ascii_folded_case_number_without_punctuation(cislo: str, slug: str) -> None:
+    assert page_slug(cislo) == slug

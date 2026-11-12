@@ -87,7 +87,9 @@ def test_a_month_writes_decisions_one_attachment_sidecars_and_the_item_index(wor
     assert sidecar["version"] == "1"
     assert sidecar["subor"] == SUBOR
     assert sidecar["pdfUrl"] == f"https://www.nsud.sk/data/att/{SUBOR}"
-    assert sidecar["pageUrl"] is None
+    assert sidecar["pageUrl"] == "https://www.nsud.sk/rozhodnutia/5szo2212010/"
+    page_of_text_decision = json.loads((folder(tmp_path, "150000") / "fetch.json").read_text(encoding="utf-8"))["pageUrl"]
+    assert page_of_text_decision == "https://www.nsud.sk/rozhodnutia/7szr652016/"
     assert sidecar["fetchedAt"].endswith("Z")
     index = json.loads((tmp_path / "raw" / "items" / "nsud_2026-09.json").read_text(encoding="utf-8"))
     assert index["ids"] == ["150000", "177749", "180001"]

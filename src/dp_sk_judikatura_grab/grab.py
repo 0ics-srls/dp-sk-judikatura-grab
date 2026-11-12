@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING, Any
 
 from dp_sk_judikatura_grab import http, windows
 from dp_sk_judikatura_grab.errors import CONFIG_ERROR, SYSTEM_ERROR, GrabError
-from dp_sk_judikatura_grab.nsud import DEFAULT_BASE_URL, DEFAULT_PAUSE, NsudClient, Pacer, digits_only
+from dp_sk_judikatura_grab.nsud import DEFAULT_BASE_URL, DEFAULT_PAUSE, NsudClient, Pacer, digits_only, page_slug
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -127,6 +127,7 @@ def _fetch_one(client: NsudClient, root: Path, decision_id: str, version: str, s
     subor = values.get("subor") if isinstance(values.get("subor"), str) and values.get("subor") else None
     has_text = isinstance(values.get("obsah"), str) and bool(str(values.get("obsah")).strip())
     pdf_only = not has_text and subor is not None
+    slug = page_slug(str(values.get("cislo") or ""))
     if pdf_only and settings.include_pdf_only and subor is not None:
         _write_atomic(folder / "attachment.pdf", client.download_attachment(subor))
     sidecar = {
@@ -135,7 +136,7 @@ def _fetch_one(client: NsudClient, root: Path, decision_id: str, version: str, s
         "fetchedAt": datetime.now(tz=UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "pdfUrl": f"{settings.base_url.rstrip('/')}/data/att/{subor}" if subor else None,
         "subor": subor,
-        "pageUrl": None,
+        "pageUrl": f"{settings.base_url.rstrip('/')}/rozhodnutia/{slug}/" if slug else None,
     }
     _write_atomic(folder / "fetch.json", json.dumps(sidecar, ensure_ascii=False).encode("utf-8"))
     return True, pdf_only
