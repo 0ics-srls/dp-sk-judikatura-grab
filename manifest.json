@@ -1,0 +1,52 @@
+{
+  "specVersion": "1.1",
+  "type": "stdin",
+  "name": "dp-sk-judikatura-grab",
+  "version": "0.1.0",
+  "description": "Downloads Supreme Court of the Slovak Republic decisions from the nsud.sk OpenData API by decision-date window, plus PDF attachments of decisions without API text. Writes files.",
+  "author": "open-lex-it",
+  "authentication": false,
+  "actions": {
+    "execute": {
+      "description": "For each item list the ids of its month window, fetch each decision once and write decision.json, attachment.pdf and fetch.json under dir. Files of the same version are kept.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "the items to download, as reported by the detect step",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": { "type": "string", "minLength": 1 },
+                "meta": {
+                  "type": "object",
+                  "properties": { "kind": { "enum": ["nsud"] }, "itemId": { "type": "string" }, "version": { "type": "string" } },
+                  "required": ["kind", "itemId"]
+                }
+              },
+              "required": ["key", "meta"]
+            }
+          },
+          "dir": { "type": "string", "description": "directory to download into" },
+          "ids": { "type": "array", "items": { "type": "string" }, "description": "explicit decision ids (sample filter)" },
+          "maxDocs": { "type": "integer", "minimum": 1, "description": "stop after this many ids per item" },
+          "includePdfOnly": { "type": "boolean", "description": "download the PDF of decisions without API text (default true)" },
+          "verifyTls": { "type": "boolean", "description": "verify TLS (default true)" },
+          "delaySeconds": { "type": "number", "minimum": 0.3, "description": "pause between requests (default 0.4)" },
+          "baseUrl": { "type": "string", "description": "https://www.nsud.sk or a replay server on host.docker.internal" }
+        },
+        "required": ["items", "dir"]
+      },
+      "output": {
+        "type": "object",
+        "description": "{ dir, items: [{key, listed, taken, skipped_existing, pdf_only}], metrics: {listed, taken, skipped_existing, pdf_only} }"
+      }
+    },
+    "terminate": {
+      "description": "Stop and clean up.",
+      "input": { "type": "object", "properties": {} }
+    }
+  },
+  "execution": { "timeout": 7200, "memoryLimit": "512Mi", "cpuLimit": "1.0" }
+}
